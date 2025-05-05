@@ -1,0 +1,14 @@
+/* 
+  Localizable.strings
+  CarPlatesScanner
+
+  Created by Shoxrux Khodjaev on 02/05/2025.
+  
+*/
+
+"scan-number" = "Raqamni skanerlash";
+"point-the-camera" = "Kamerani raqamqa yo'naltiring";
+"cancel" = "Orqaga";
+"allow-in-settings" = "Kameraga kirishni bering";
+"open-settings" = "So'zlamalarni ochish";
+"no-access" = "Kameraga kirish taqiqlangan";

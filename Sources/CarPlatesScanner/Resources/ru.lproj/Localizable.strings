@@ -1,0 +1,14 @@
+/* 
+  Localizable.strings
+  CarPlatesScanner
+
+  Created by Shoxrux Khodjaev on 02/05/2025.
+  
+*/
+
+"scan-number" = "Сканировать номер";
+"point-the-camera" = "Наведите камеру на номер авто";
+"cancel" = "Отмена";
+"allow-in-settings" = "Пожалуйста, разрешите доступ к камере";
+"open-settings" = "Открыть настройки";
+"no-access" = "Доступ к камере запрещен";
