@@ -12,15 +12,19 @@ import Vision
 public struct CameraScanView: View {
     
     /// First is series, second is number
-    @State var onPlatesDetected: (String, String) -> (Void)
-    @State private var showAlert: Bool = false
-  
+    public let onPlatesDetected: (String, String) -> (Void)
+    
     @Environment(\.presentationMode) var presentationMode
+  
+    @State private var showAlert: Bool = false
 
     @State private var carPlates: String = ""
     
     private let cutoutSize = CGSize(width: UIScreen.main.bounds.width * 3/4, height: 100)
     
+    public init(onPlatesDetected: @escaping (String, String) -> Void) {
+        self.onPlatesDetected = onPlatesDetected
+    }
     public var body: some View {
         NavigationStack {
             ZStack {
@@ -153,7 +157,6 @@ public struct CameraScanView: View {
     CameraScanView(onPlatesDetected: { _,_ in
         
     })
-//    .environment(\.locale, .init(identifier: "uz"))
 }
 
 public extension String {
