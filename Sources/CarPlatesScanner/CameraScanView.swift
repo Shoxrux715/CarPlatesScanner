@@ -105,6 +105,7 @@ public struct CameraScanView: View {
             } label: {
                 Image(systemName: "xmark")
                     .foregroundColor(Color.white)
+                    .scaleEffect(0.5)
                     .padding()
             }
         }
