@@ -19,12 +19,12 @@ public class Coordinator: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate
         setupVision()
     }
     
-    func setupVision() {
+    public func setupVision() {
         let textRequest = VNRecognizeTextRequest(completionHandler: self.handleDetectedText)
         self.visionRequest = [textRequest]
     }
     
-    func handleDetectedText(request: VNRequest?, error: Error?) {
+    public func handleDetectedText(request: VNRequest?, error: Error?) {
         guard let observations = request?.results as? [VNRecognizedTextObservation] else { return }
         var carPlates: String?
         
@@ -46,7 +46,7 @@ public class Coordinator: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate
     }
     
     // To recognize plates with letter "O"
-    func correctPlate(_ rawText: String) -> String {
+    public func correctPlate(_ rawText: String) -> String {
         let cleaned = rawText.uppercased().replacingOccurrences(of: " ", with: "")
         guard cleaned.count >= 5 else { return cleaned }
 
