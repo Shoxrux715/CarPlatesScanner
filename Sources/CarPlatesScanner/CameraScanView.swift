@@ -16,11 +16,11 @@ public struct CameraScanView: View {
     
     @Environment(\.presentationMode) var presentationMode
   
-    @State private var showAlert: Bool = false
+    @State public var showAlert: Bool = false
 
-    @State private var carPlates: String = ""
+    @State public var carPlates: String = ""
     
-    private let cutoutSize = CGSize(width: UIScreen.main.bounds.width * 3/4, height: 100)
+    public let cutoutSize = CGSize(width: UIScreen.main.bounds.width * 3/4, height: 100)
     
     public init(onPlatesDetected: @escaping (String, String) -> Void) {
         self.onPlatesDetected = onPlatesDetected

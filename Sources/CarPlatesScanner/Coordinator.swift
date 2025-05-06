@@ -10,8 +10,8 @@ import AVFoundation
 import Vision
 
 public class Coordinator: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
-    var parent: CarPlatesScannerView
-    var visionRequest = [VNRequest]()
+    public var parent: CarPlatesScannerView
+    public var visionRequest = [VNRequest]()
     
     public init(_ parent: CarPlatesScannerView) {
         self.parent = parent

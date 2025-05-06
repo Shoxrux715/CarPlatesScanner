@@ -10,7 +10,7 @@ import AVFoundation
 import Vision
 
 public struct CutoutMask: Shape {
-    var size: CGSize
+    public var size: CGSize
 
     public func path(in rect: CGRect) -> Path {
         var path = Path()
