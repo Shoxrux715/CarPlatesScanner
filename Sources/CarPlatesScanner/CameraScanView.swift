@@ -154,7 +154,7 @@ public struct CameraScanView: View {
 }
 
 #Preview {
-    CameraScanView(onPlatesDetected: { _,_ in
+    CameraScanView(onPlatesDetected: { ser, num in
         
     })
 }
