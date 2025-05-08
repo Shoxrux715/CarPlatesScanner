@@ -161,8 +161,8 @@ public struct CameraScanView: View {
 
 public extension String {
     func isValidNumberPlates() -> Bool {
-        
-        let patt = #"^[0-9][0-9O](?:[A-Z][0-9]{3}[A-Z]{2}|[0-9]{3}[A-Z]{3}| ?[A-Z] ?[0-9]{5,6})$"#
+//        #"^[0-9][0-9O](?:[A-Z][0-9]{3}[A-Z]{2}|[0-9]{3}[A-Z]{3}| ?[A-Z] ?[0-9]{5,6})$"#
+        let patt = #"^(?:[0-9][0-9O](?:[A-Z][0-9]{3}[A-Z]{2}|[0-9]{3}[A-Z]{3}| ?[A-Z] ?[0-9]{5,6})|[A-Z]{2}[0-9]{4}|[A-Z]{3}[0-9]{3})$"#
         
         let regex = try! NSRegularExpression(pattern: patt)
         let range = NSRange(location: 0, length: self.utf16.count)
