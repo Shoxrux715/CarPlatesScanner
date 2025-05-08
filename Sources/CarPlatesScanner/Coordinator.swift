@@ -52,7 +52,7 @@ public class Coordinator: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate
 
         let region = String(cleaned.prefix(2))
         let body = Array(cleaned.dropFirst(2))
-        let unknown = Array(cleaned)
+//        let unknown = Array(cleaned)
         var corrected = body
 
         func isDigit(_ char: Character) -> Bool {
@@ -63,24 +63,25 @@ public class Coordinator: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate
             return char.isLetter || char == "0"
         }
         
-        if unknown.count == 6,
-           isLetterOrO(unknown[0]), isLetterOrO(unknown[1]),
-           (1..<5).allSatisfy({ isDigit(unknown[$0]) }) {
-            
-            if unknown[0] == "0" { corrected[0] = "O" }
-            if unknown[1] == "0" { corrected[1] = "O" }
-            
-        }
-        else if unknown.count == 6,
-                isLetterOrO(unknown[0]), isLetterOrO(unknown[1]), isLetterOrO(unknown[2]),
-                (1..<4).allSatisfy({ isDigit(unknown[$0]) }) {
-            
-            if unknown[0] == "0" { corrected[0] = "O" }
-            if unknown[1] == "0" { corrected[1] = "O" }
-            if unknown[2] == "0" { corrected[2] = "O" }
-            
-        }
-        else if body.count == 6,
+//        if unknown.count == 6,
+//           isLetterOrO(unknown[0]), isLetterOrO(unknown[1]),
+//           (1..<5).allSatisfy({ isDigit(unknown[$0]) }) {
+//            
+//            if unknown[0] == "0" { corrected[0] = "O" }
+//            if unknown[1] == "0" { corrected[1] = "O" }
+//            
+//        }
+//        else if unknown.count == 6,
+//                isLetterOrO(unknown[0]), isLetterOrO(unknown[1]), isLetterOrO(unknown[2]),
+//                (1..<4).allSatisfy({ isDigit(unknown[$0]) }) {
+//            
+//            if unknown[0] == "0" { corrected[0] = "O" }
+//            if unknown[1] == "0" { corrected[1] = "O" }
+//            if unknown[2] == "0" { corrected[2] = "O" }
+//            
+//        }
+//        else
+        if body.count == 6,
            isLetterOrO(body[0]), // 1 Letter
            isDigit(body[1]), isDigit(body[2]), isDigit(body[3]), // 3 Numbers
            isLetterOrO(body[4]), isLetterOrO(body[5]) { // 2 Letters
