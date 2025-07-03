@@ -116,7 +116,7 @@ public struct CameraScanView: View {
     private func parseCarPlate(_ plate: String) {
         let cleaned = plate.replacingOccurrences(of: " ", with: "")
         guard cleaned.count >= 8 else {
-            onPlatesDetected(cleaned, "")
+            onPlatesDetected("", cleaned)
             return
         }
         
