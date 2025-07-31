@@ -51,6 +51,7 @@ public struct CameraScanView: View {
         self.cameraViewBgColorOpacity = cameraViewBackgroundColorOpacity ?? 0.3
         self.cutoutWidth = cutoutWidth ?? cutoutSize.width
         self.cutoutHeight = cutoutHeight ?? cutoutSize.height
+        self.cutoutSize = CGSize(width: cutoutWidth ?? cutoutSize.width, height: cutoutHeight ?? cutoutSize.height)
         self.cutoutStrokeColor = cutoutStrokeColor ?? .white
         self.cutoutStrokeLineWidth = cutoutStrokeLineWidth ?? 5
         self.font = font ?? .system(size: 20)
@@ -70,7 +71,7 @@ public struct CameraScanView: View {
                 Rectangle()
                     .fill(cameraViewBgColor.opacity(cameraViewBgColorOpacity))
                     .mask(
-                        CutoutMask(size: CGSize(width: cutoutWidth, height: cutoutHeight)
+                        CutoutMask(size: cutoutSize)
                             .fill(style: FillStyle(eoFill: true))
                     )
                     .background(
