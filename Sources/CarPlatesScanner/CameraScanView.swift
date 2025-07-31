@@ -17,8 +17,8 @@ public struct CameraScanView: View {
     public var toolBarItemsColor: Color
     public var cameraViewBgColor: Color
     public var cameraViewBgColorOpacity: Double
-    public var cutoutWidth: CGFloat?
-    public var cutoutHeight: CGFloat?
+    public var cutoutWidth: CGFloat
+    public var cutoutHeight: CGFloat
     public var cutoutStrokeColor: Color
     public var cutoutStrokeLineWidth: CGFloat
     public var font: Font
@@ -30,7 +30,7 @@ public struct CameraScanView: View {
 
     @State public var carPlates: String = ""
     
-    public let cutoutSize = CGSize(width: UIScreen.main.bounds.width * 3/4, height: 100)
+    public var cutoutSize = CGSize(width: UIScreen.main.bounds.width * 3/4, height: 100)
     
     
     public init(
@@ -70,15 +70,15 @@ public struct CameraScanView: View {
                 Rectangle()
                     .fill(cameraViewBgColor.opacity(cameraViewBgColorOpacity))
                     .mask(
-                        CutoutMask(size: cutoutSize)
+                        CutoutMask(size: CGSize(width: cutoutWidth, height: cutoutHeight)
                             .fill(style: FillStyle(eoFill: true))
                     )
                     .background(
                         RoundedRectangle(cornerRadius: 16)
                             .stroke(cutoutStrokeColor, lineWidth: cutoutStrokeLineWidth)
                             .frame(
-                                width: cutoutWidth ?? cutoutSize.width,
-                                height: cutoutHeight ?? cutoutSize.height)
+                                width: cutoutWidth,
+                                height: cutoutHeight)
                     )
                     .overlay {
                         HStack(alignment: .center) {
@@ -171,7 +171,6 @@ public struct CameraScanView: View {
             AVCaptureDevice.requestAccess(for: .video) { granted in
                 DispatchQueue.main.async {
                     showAlert = !granted
-                    presentationMode.wrappedValue.dismiss()
                 }
             }
 
