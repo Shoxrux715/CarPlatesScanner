@@ -13,8 +13,18 @@ public struct CameraScanView: View {
     
     /// First is series, second is number
     public let onPlatesDetected: (String, String) -> (Void)
+    public var scannedPlatesTextColor: Color
+    public var toolBarItemsColor: Color
+    public var cameraViewBgColor: Color
+    public var cameraViewBgColorOpacity: Double
+    public var cutoutWidth: CGFloat?
+    public var cutoutHeight: CGFloat?
+    public var cutoutStrokeColor: Color
+    public var cutoutStrokeLineWidth: CGFloat
+    public var font: Font
     
     @Environment(\.presentationMode) var presentationMode
+    @Environment(\.dismiss) var dismiss
   
     @State public var showAlert: Bool = false
 
@@ -22,9 +32,31 @@ public struct CameraScanView: View {
     
     public let cutoutSize = CGSize(width: UIScreen.main.bounds.width * 3/4, height: 100)
     
-    public init(onPlatesDetected: @escaping (String, String) -> Void) {
+    
+    public init(
+        scannedPlatesTextColor: Color? = nil,
+        toolBarItemsColor: Color? = nil,
+        cameraViewBackgroundColor: Color? = nil,
+        cameraViewBackgroundColorOpacity: Double? = nil,
+        cutoutWidth: CGFloat? = nil,
+        cutoutHeight: CGFloat? = nil,
+        cutoutStrokeColor: Color? = nil,
+        cutoutStrokeLineWidth: CGFloat? = nil,
+        font: Font? = nil,
+        onPlatesDetected: @escaping (String, String) -> Void
+    ) {
+        self.scannedPlatesTextColor = scannedPlatesTextColor ?? .white
+        self.toolBarItemsColor = toolBarItemsColor ?? .white
+        self.cameraViewBgColor = cameraViewBackgroundColor ?? .black
+        self.cameraViewBgColorOpacity = cameraViewBackgroundColorOpacity ?? 0.3
+        self.cutoutWidth = cutoutWidth ?? cutoutSize.width
+        self.cutoutHeight = cutoutHeight ?? cutoutSize.height
+        self.cutoutStrokeColor = cutoutStrokeColor ?? .white
+        self.cutoutStrokeLineWidth = cutoutStrokeLineWidth ?? 5
+        self.font = font ?? .system(size: 20)
         self.onPlatesDetected = onPlatesDetected
     }
+    
     public var body: some View {
         NavigationStack {
             ZStack {
@@ -36,22 +68,24 @@ public struct CameraScanView: View {
                 .edgesIgnoringSafeArea(.all)
                 
                 Rectangle()
-                    .fill(Color.black.opacity(0.3))
+                    .fill(cameraViewBgColor.opacity(cameraViewBgColorOpacity))
                     .mask(
                         CutoutMask(size: cutoutSize)
                             .fill(style: FillStyle(eoFill: true))
                     )
                     .background(
                         RoundedRectangle(cornerRadius: 16)
-                            .stroke(Color.white, lineWidth: 5)
-                            .frame(width: cutoutSize.width, height: cutoutSize.height)
+                            .stroke(cutoutStrokeColor, lineWidth: cutoutStrokeLineWidth)
+                            .frame(
+                                width: cutoutWidth ?? cutoutSize.width,
+                                height: cutoutHeight ?? cutoutSize.height)
                     )
                     .overlay {
                         HStack(alignment: .center) {
                             if !carPlates.isEmpty {
                                 Text("\(carPlates)")
-                                    .font(.system(size: 30).bold())
-                                    .foregroundStyle(Color.white)
+                                    .font(font)
+                                    .foregroundStyle(scannedPlatesTextColor)
                             }
                         }
                         .animation(.easeInOut, value: carPlates)
@@ -60,6 +94,7 @@ public struct CameraScanView: View {
                 
                 
                 Text("point-the-camera", bundle: .module)
+                    .font(font)
                     .foregroundColor(Color.white)
                     .frame(maxHeight: 300, alignment: .top)
                 
@@ -96,7 +131,8 @@ public struct CameraScanView: View {
         
         ToolbarItem(placement: .principal) {
             Text("scan-number", bundle: .module)
-                .foregroundColor(Color.white)
+                .font(font)
+                .foregroundColor(toolBarItemsColor)
         }
         
         ToolbarItem(placement: .topBarLeading) {
@@ -104,7 +140,7 @@ public struct CameraScanView: View {
                 presentationMode.wrappedValue.dismiss()
             } label: {
                 Image(systemName: "xmark")
-                    .foregroundColor(Color.white)
+                    .foregroundColor(toolBarItemsColor)
                     .frame(width: 40, height: 40)
                     .padding()
             }
