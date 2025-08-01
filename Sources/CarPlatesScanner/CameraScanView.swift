@@ -13,6 +13,7 @@ public struct CameraScanView: View {
     
     /// First is series, second is number
     public let onPlatesDetected: (String, String) -> (Void)
+    public let onClose: () -> Void
     public var scannedPlatesTextColor: Color
     public var toolBarItemsColor: Color
     public var cameraViewBgColor: Color
@@ -43,7 +44,8 @@ public struct CameraScanView: View {
         cutoutStrokeColor: Color? = nil,
         cutoutStrokeLineWidth: CGFloat? = nil,
         font: Font? = nil,
-        onPlatesDetected: @escaping (String, String) -> Void
+        onPlatesDetected: @escaping (String, String) -> Void,
+        onClose: @escaping () -> Void
     ) {
         self.scannedPlatesTextColor = scannedPlatesTextColor ?? .white
         self.toolBarItemsColor = toolBarItemsColor ?? .white
@@ -56,6 +58,7 @@ public struct CameraScanView: View {
         self.cutoutStrokeLineWidth = cutoutStrokeLineWidth ?? 5
         self.font = font ?? .system(size: 20)
         self.onPlatesDetected = onPlatesDetected
+        self.onClose = onClose
     }
     
     public var body: some View {
@@ -112,7 +115,7 @@ public struct CameraScanView: View {
                     Text("open-settings", bundle: .module)
                 }
                 Button {
-                    dismiss()
+                    onClose()
                 } label: {
                     Text("cancel", bundle: .module)
                 }
@@ -138,7 +141,7 @@ public struct CameraScanView: View {
         
         ToolbarItem(placement: .topBarLeading) {
             Button{
-                dismiss()
+                onClose()
             } label: {
                 Image(systemName: "xmark")
                     .foregroundColor(toolBarItemsColor)
@@ -172,6 +175,7 @@ public struct CameraScanView: View {
             AVCaptureDevice.requestAccess(for: .video) { granted in
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                     showAlert = !granted
+                    onClose()
                 }
             }
 
@@ -185,13 +189,15 @@ public struct CameraScanView: View {
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             carPlates = ""
-            dismiss()
+            onClose()
         }
     }
 }
 
 #Preview {
     CameraScanView(onPlatesDetected: { ser, num in
+        
+    }, onClose: {
         
     })
 }
