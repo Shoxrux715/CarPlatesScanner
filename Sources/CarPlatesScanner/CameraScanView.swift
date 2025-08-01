@@ -127,15 +127,7 @@ public struct CameraScanView: View {
             }
         }
         .onAppear {
-            checkCameraPermission { granted in
-                if granted {
-                    withAnimation {
-                        showScanner = true
-                    }
-                } else {
-                    showAlert = true
-                }
-            }
+            checkCameraPermission()
         }
     }
         
@@ -177,20 +169,20 @@ public struct CameraScanView: View {
         return
     }
     
-    private func checkCameraPermission(completion: @escaping (Bool) -> Void) {
+    private func checkCameraPermission() {
         switch AVCaptureDevice.authorizationStatus(for: .video) {
         case .authorized:
-            completion(true)
+            showAlert = false
 
         case .notDetermined:
             AVCaptureDevice.requestAccess(for: .video) { granted in
                 DispatchQueue.main.async {
-                    completion(granted)
+                    showAlert = !granted
                 }
             }
 
         default:
-            completion(false)
+            showAlert = true
         }
     }
     
