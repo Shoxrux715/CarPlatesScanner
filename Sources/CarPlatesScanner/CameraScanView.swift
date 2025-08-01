@@ -99,6 +99,13 @@ public struct CameraScanView: View {
                     .foregroundColor(Color.white)
                     .frame(maxHeight: 300, alignment: .top)
                 
+                NavigationLink(isActive: .constant(false)) {
+                    
+                } label: {
+                    EmptyView()
+                }
+                .isDetailLink(false)
+                .navigationViewStyle(.stack)
             }
             .alert(Text("no-access", bundle: .module), isPresented: $showAlert) {
                 Button {
@@ -122,13 +129,6 @@ public struct CameraScanView: View {
             .onAppear {
                 checkCameraPermission()
             }
-        NavigationLink(isActive: .constant(false)) {
-            
-        } label: {
-            EmptyView()
-        }
-        .isDetailLink(false)
-        .navigationViewStyle(.stack)
     }
         
     
