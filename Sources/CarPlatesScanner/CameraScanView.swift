@@ -112,7 +112,7 @@ public struct CameraScanView: View {
                     Text("open-settings", bundle: .module)
                 }
                 Button {
-                    presentationMode.wrappedValue.dismiss()
+                    dismiss()
                 } label: {
                     Text("cancel", bundle: .module)
                 }
@@ -138,7 +138,7 @@ public struct CameraScanView: View {
         
         ToolbarItem(placement: .topBarLeading) {
             Button{
-                presentationMode.wrappedValue.dismiss()
+                dismiss()
             } label: {
                 Image(systemName: "xmark")
                     .foregroundColor(toolBarItemsColor)
@@ -170,7 +170,7 @@ public struct CameraScanView: View {
 
         case .notDetermined:
             AVCaptureDevice.requestAccess(for: .video) { granted in
-                DispatchQueue.main.async {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                     showAlert = !granted
                 }
             }
@@ -185,7 +185,7 @@ public struct CameraScanView: View {
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             carPlates = ""
-            presentationMode.wrappedValue.dismiss()
+            dismiss()
         }
     }
 }
