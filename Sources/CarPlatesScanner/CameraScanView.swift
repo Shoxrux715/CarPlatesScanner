@@ -28,6 +28,7 @@ public struct CameraScanView: View {
     @Environment(\.dismiss) var dismiss
   
     @State public var showAlert: Bool = false
+    @State public var showScanner: Bool = false
 
     @State public var carPlates: String = ""
     
@@ -63,67 +64,77 @@ public struct CameraScanView: View {
     
     public var body: some View {
         NavigationStack {
-            ZStack {
-                CarPlatesScannerView { plates in
-                    self.carPlates = plates
-                    parseCarPlate(plates)
-                    cameraAutoOff()
-                }
-                .edgesIgnoringSafeArea(.all)
-                
-                Rectangle()
-                    .fill(cameraViewBgColor.opacity(cameraViewBgColorOpacity))
-                    .mask(
-                        CutoutMask(size: cutoutSize)
-                            .fill(style: FillStyle(eoFill: true))
-                    )
-                    .background(
-                        RoundedRectangle(cornerRadius: 16)
-                            .stroke(cutoutStrokeColor, lineWidth: cutoutStrokeLineWidth)
-                            .frame(
-                                width: cutoutWidth,
-                                height: cutoutHeight)
-                    )
-                    .overlay {
-                        HStack(alignment: .center) {
-                            if !carPlates.isEmpty {
-                                Text("\(carPlates)")
-                                    .font(font)
-                                    .foregroundStyle(scannedPlatesTextColor)
+            if showScanner {
+                ZStack {
+                    CarPlatesScannerView { plates in
+                        self.carPlates = plates
+                        parseCarPlate(plates)
+                        cameraAutoOff()
+                    }
+                    .edgesIgnoringSafeArea(.all)
+                    
+                    Rectangle()
+                        .fill(cameraViewBgColor.opacity(cameraViewBgColorOpacity))
+                        .mask(
+                            CutoutMask(size: cutoutSize)
+                                .fill(style: FillStyle(eoFill: true))
+                        )
+                        .background(
+                            RoundedRectangle(cornerRadius: 16)
+                                .stroke(cutoutStrokeColor, lineWidth: cutoutStrokeLineWidth)
+                                .frame(
+                                    width: cutoutWidth,
+                                    height: cutoutHeight)
+                        )
+                        .overlay {
+                            HStack(alignment: .center) {
+                                if !carPlates.isEmpty {
+                                    Text("\(carPlates)")
+                                        .font(font)
+                                        .foregroundStyle(scannedPlatesTextColor)
+                                }
                             }
+                            .animation(.easeInOut, value: carPlates)
                         }
-                        .animation(.easeInOut, value: carPlates)
-                    }
-                    .ignoresSafeArea()
-                
-                
-                Text("point-the-camera", bundle: .module)
-                    .font(font)
-                    .foregroundColor(Color.white)
-                    .frame(maxHeight: 300, alignment: .top)
-                
-            }
-            .onAppear {
-                checkCameraPermission()
-            }
-            .alert(Text("no-access", bundle: .module), isPresented: $showAlert) {
-                Button {
-                    if let url = URL(string: UIApplication.openSettingsURLString) {
-                        UIApplication.shared.open(url)
-                    }
-                } label: {
-                    Text("open-settings", bundle: .module)
+                        .ignoresSafeArea()
+                    
+                    
+                    Text("point-the-camera", bundle: .module)
+                        .font(font)
+                        .foregroundColor(Color.white)
+                        .frame(maxHeight: 300, alignment: .top)
+                    
                 }
-                Button {
-                    onClose()
-                } label: {
-                    Text("cancel", bundle: .module)
+                .alert(Text("no-access", bundle: .module), isPresented: $showAlert) {
+                    Button {
+                        if let url = URL(string: UIApplication.openSettingsURLString) {
+                            UIApplication.shared.open(url)
+                        }
+                    } label: {
+                        Text("open-settings", bundle: .module)
+                    }
+                    Button {
+                        onClose()
+                    } label: {
+                        Text("cancel", bundle: .module)
+                    }
+                } message: {
+                    Text("allow-in-settings", bundle: .module)
                 }
-            } message: {
-                Text("allow-in-settings", bundle: .module)
+                .toolbar {
+                    toolBarItems()
+                }
             }
-            .toolbar {
-                toolBarItems()
+        }
+        .onAppear {
+            checkCameraPermission { granted in
+                if granted {
+                    withAnimation {
+                        showScanner = true
+                    }
+                } else {
+                    showAlert = true
+                }
             }
         }
     }
@@ -166,20 +177,20 @@ public struct CameraScanView: View {
         return
     }
     
-    private func checkCameraPermission() {
+    private func checkCameraPermission(completion: @escaping (Bool) -> Void) {
         switch AVCaptureDevice.authorizationStatus(for: .video) {
         case .authorized:
-            showAlert = false
+            completion(true)
 
         case .notDetermined:
             AVCaptureDevice.requestAccess(for: .video) { granted in
                 DispatchQueue.main.async {
-                    showAlert = !granted
+                    completion(granted)
                 }
             }
 
         default:
-            showAlert = true
+            completion(false)
         }
     }
     
