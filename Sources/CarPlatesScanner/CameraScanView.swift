@@ -173,9 +173,8 @@ public struct CameraScanView: View {
 
         case .notDetermined:
             AVCaptureDevice.requestAccess(for: .video) { granted in
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                DispatchQueue.main.async {
                     showAlert = !granted
-                    onClose()
                 }
             }
 
