@@ -25,7 +25,6 @@ public struct CameraScanView: View {
     public var font: Font
   
     @State public var showAlert: Bool = false
-    @State public var showScanner: Bool = false
 
     @State public var carPlates: String = ""
     
@@ -60,72 +59,76 @@ public struct CameraScanView: View {
     }
     
     public var body: some View {
-        NavigationStack {
-            if showScanner {
-                ZStack {
-                    CarPlatesScannerView { plates in
-                        self.carPlates = plates
-                        parseCarPlate(plates)
-                        cameraAutoOff()
-                    }
-                    .edgesIgnoringSafeArea(.all)
-                    
-                    Rectangle()
-                        .fill(cameraViewBgColor.opacity(cameraViewBgColorOpacity))
-                        .mask(
-                            CutoutMask(size: cutoutSize)
-                                .fill(style: FillStyle(eoFill: true))
-                        )
-                        .background(
-                            RoundedRectangle(cornerRadius: 16)
-                                .stroke(cutoutStrokeColor, lineWidth: cutoutStrokeLineWidth)
-                                .frame(
-                                    width: cutoutWidth,
-                                    height: cutoutHeight)
-                        )
-                        .overlay {
-                            HStack(alignment: .center) {
-                                if !carPlates.isEmpty {
-                                    Text("\(carPlates)")
-                                        .font(font)
-                                        .foregroundStyle(scannedPlatesTextColor)
-                                }
+//        NavigationStack {
+            ZStack {
+                CarPlatesScannerView { plates in
+                    self.carPlates = plates
+                    parseCarPlate(plates)
+                    cameraAutoOff()
+                }
+                .edgesIgnoringSafeArea(.all)
+                
+                Rectangle()
+                    .fill(cameraViewBgColor.opacity(cameraViewBgColorOpacity))
+                    .mask(
+                        CutoutMask(size: cutoutSize)
+                            .fill(style: FillStyle(eoFill: true))
+                    )
+                    .background(
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(cutoutStrokeColor, lineWidth: cutoutStrokeLineWidth)
+                            .frame(
+                                width: cutoutWidth,
+                                height: cutoutHeight)
+                    )
+                    .overlay {
+                        HStack(alignment: .center) {
+                            if !carPlates.isEmpty {
+                                Text("\(carPlates)")
+                                    .font(font)
+                                    .foregroundStyle(scannedPlatesTextColor)
                             }
-                            .animation(.easeInOut, value: carPlates)
                         }
-                        .ignoresSafeArea()
-                    
-                    
-                    Text("point-the-camera", bundle: .module)
-                        .font(font)
-                        .foregroundColor(Color.white)
-                        .frame(maxHeight: 300, alignment: .top)
-                    
-                }
-                .alert(Text("no-access", bundle: .module), isPresented: $showAlert) {
-                    Button {
-                        if let url = URL(string: UIApplication.openSettingsURLString) {
-                            UIApplication.shared.open(url)
-                        }
-                    } label: {
-                        Text("open-settings", bundle: .module)
+                        .animation(.easeInOut, value: carPlates)
                     }
-                    Button {
-                        onClose()
-                    } label: {
-                        Text("cancel", bundle: .module)
-                    }
-                } message: {
-                    Text("allow-in-settings", bundle: .module)
-                }
-                .toolbar {
-                    toolBarItems()
-                }
+                    .ignoresSafeArea()
+                
+                
+                Text("point-the-camera", bundle: .module)
+                    .font(font)
+                    .foregroundColor(Color.white)
+                    .frame(maxHeight: 300, alignment: .top)
+                
             }
+            .alert(Text("no-access", bundle: .module), isPresented: $showAlert) {
+                Button {
+                    if let url = URL(string: UIApplication.openSettingsURLString) {
+                        UIApplication.shared.open(url)
+                    }
+                } label: {
+                    Text("open-settings", bundle: .module)
+                }
+                Button {
+                    onClose()
+                } label: {
+                    Text("cancel", bundle: .module)
+                }
+            } message: {
+                Text("allow-in-settings", bundle: .module)
+            }
+            .toolbar {
+                toolBarItems()
+            }
+            .onAppear {
+                checkCameraPermission()
+            }
+        NavigationLink(isActive: .constant(false)) {
+            
+        } label: {
+            EmptyView()
         }
-        .onAppear {
-            checkCameraPermission()
-        }
+        .isDetailLink(false)
+        .navigationViewStyle(.stack)
     }
         
     
@@ -173,8 +176,7 @@ public struct CameraScanView: View {
 
         case .notDetermined:
             AVCaptureDevice.requestAccess(for: .video) { granted in
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                    guard showScanner else { return }
+                DispatchQueue.main.async {
                     showAlert = !granted
                 }
             }
