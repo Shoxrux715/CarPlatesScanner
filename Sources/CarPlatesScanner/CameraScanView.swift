@@ -23,9 +23,6 @@ public struct CameraScanView: View {
     public var cutoutStrokeColor: Color
     public var cutoutStrokeLineWidth: CGFloat
     public var font: Font
-    
-    @Environment(\.presentationMode) var presentationMode
-    @Environment(\.dismiss) var dismiss
   
     @State public var showAlert: Bool = false
     @State public var showScanner: Bool = false
@@ -176,7 +173,8 @@ public struct CameraScanView: View {
 
         case .notDetermined:
             AVCaptureDevice.requestAccess(for: .video) { granted in
-                DispatchQueue.main.async {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                    guard showScanner else { return }
                     showAlert = !granted
                 }
             }
