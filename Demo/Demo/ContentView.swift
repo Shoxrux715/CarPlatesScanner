@@ -43,6 +43,8 @@ struct ContentView: View {
                 // Number -> body (A123AA, 123AAA, etc.)
                 // Combining both of them will create a whole number, however you can interact with each string as you want
                 carNumber = series + number
+            } onClose: {
+                isScanning = false
             }
         }
     }
