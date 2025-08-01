@@ -59,7 +59,7 @@ public struct CameraScanView: View {
     }
     
     public var body: some View {
-//        NavigationStack {
+        NavigationStack {
             ZStack {
                 CarPlatesScannerView { plates in
                     self.carPlates = plates
@@ -99,13 +99,6 @@ public struct CameraScanView: View {
                     .foregroundColor(Color.white)
                     .frame(maxHeight: 300, alignment: .top)
                 
-                NavigationLink(isActive: .constant(false)) {
-                    
-                } label: {
-                    EmptyView()
-                }
-                .isDetailLink(false)
-                .navigationViewStyle(.stack)
             }
             .alert(Text("no-access", bundle: .module), isPresented: $showAlert) {
                 Button {
@@ -126,9 +119,10 @@ public struct CameraScanView: View {
             .toolbar {
                 toolBarItems()
             }
-            .onAppear {
-                checkCameraPermission()
-            }
+        }
+        .onAppear {
+            checkCameraPermission()
+        }
     }
         
     
@@ -176,7 +170,7 @@ public struct CameraScanView: View {
 
         case .notDetermined:
             AVCaptureDevice.requestAccess(for: .video) { granted in
-                DispatchQueue.main.async {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                     showAlert = !granted
                 }
             }
