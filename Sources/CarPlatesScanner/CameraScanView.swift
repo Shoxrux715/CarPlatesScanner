@@ -177,15 +177,13 @@ public struct CameraScanView: View {
             AVCaptureDevice.requestAccess(for: .video) { granted in
                 DispatchQueue.main.async {
                     accessGranted = granted
-//                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: {
-//                        showAlert = !granted
-//                    })
+                    showAlert = !granted
                 }
             }
 
         default:
             accessGranted = false
-//            showAlert = true
+            showAlert = true
         }
     }
     
