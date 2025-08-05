@@ -103,7 +103,7 @@ public struct CameraScanView: View {
                 }
             }
             .onAppear {
-                checkCameraPermission()
+//                checkCameraPermission()
             }
             .alert(Text("no-access", bundle: .module), isPresented: $showAlert) {
                 Button {
