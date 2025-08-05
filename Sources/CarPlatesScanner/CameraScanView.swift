@@ -185,7 +185,7 @@ public struct CameraScanView: View {
 
         default:
             accessGranted = false
-            showAlert = true
+//            showAlert = true
         }
     }
     
