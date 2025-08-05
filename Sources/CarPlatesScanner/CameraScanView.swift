@@ -26,6 +26,8 @@ public struct CameraScanView: View {
   
     @State public var showAlert: Bool = false
     @State public var accessGranted: Bool = false
+    @State public var isActive = true
+
 
     @State public var carPlates: String = ""
     
@@ -105,7 +107,11 @@ public struct CameraScanView: View {
                 }
             }
             .onAppear {
+                isActive = true
                 checkCameraPermission()
+            }
+            .onDisappear {
+                isActive = false
             }
             .alert(Text("no-access", bundle: .module), isPresented: $showAlert) {
                 Button {
@@ -176,6 +182,7 @@ public struct CameraScanView: View {
         case .notDetermined:
             AVCaptureDevice.requestAccess(for: .video) { granted in
                 DispatchQueue.main.async {
+                    guard isActive else { return }
                     accessGranted = granted
                     showAlert = !granted
                 }
