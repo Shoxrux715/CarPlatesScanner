@@ -100,10 +100,12 @@ public struct CameraScanView: View {
                         .font(font)
                         .foregroundColor(Color.white)
                         .frame(maxHeight: 300, alignment: .top)
+                } else {
+                    EmptyView()
                 }
             }
             .onAppear {
-//                checkCameraPermission()
+                checkCameraPermission()
             }
             .alert(Text("no-access", bundle: .module), isPresented: $showAlert) {
                 Button {
@@ -175,9 +177,9 @@ public struct CameraScanView: View {
             AVCaptureDevice.requestAccess(for: .video) { granted in
                 DispatchQueue.main.async {
                     accessGranted = granted
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: {
-                        showAlert = !granted
-                    })
+//                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: {
+//                        showAlert = !granted
+//                    })
                 }
             }
 
