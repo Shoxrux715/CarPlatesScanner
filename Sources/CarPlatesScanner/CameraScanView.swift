@@ -100,6 +100,9 @@ public struct CameraScanView: View {
                     .frame(maxHeight: 300, alignment: .top)
                 
             }
+            .onAppear {
+                checkCameraPermission()
+            }
             .alert(Text("no-access", bundle: .module), isPresented: $showAlert) {
                 Button {
                     if let url = URL(string: UIApplication.openSettingsURLString) {
@@ -119,9 +122,6 @@ public struct CameraScanView: View {
             .toolbar {
                 toolBarItems()
             }
-        }
-        .onAppear {
-            checkCameraPermission()
         }
     }
         
@@ -170,7 +170,7 @@ public struct CameraScanView: View {
 
         case .notDetermined:
             AVCaptureDevice.requestAccess(for: .video) { granted in
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                DispatchQueue.main.async {
                     showAlert = !granted
                 }
             }
