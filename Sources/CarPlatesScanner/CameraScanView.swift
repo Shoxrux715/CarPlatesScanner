@@ -123,12 +123,6 @@ public struct CameraScanView: View {
                                 .cornerRadius(15)
                         }
                     }
-                    .padding()
-                    .frame(width: UIScreen.main.bounds.width * 0.75, height: 200, alignment: .center)
-                    .background(
-                        RoundedRectangle(cornerRadius: 15)
-                            .background(.gray.opacity(0.8))
-                        )
                 }
             }
             .onAppear {
