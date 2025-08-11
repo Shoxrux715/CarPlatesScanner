@@ -26,8 +26,6 @@ public struct CameraScanView: View {
   
     @State public var showAlert: Bool = false
     @State public var accessGranted: Bool = false
-    @State public var isActive = true
-
 
     @State public var carPlates: String = ""
     
@@ -103,31 +101,33 @@ public struct CameraScanView: View {
                         .foregroundColor(Color.white)
                         .frame(maxHeight: 300, alignment: .top)
                 } else {
-                    EmptyView()
+                    VStack {
+                        Text("no-access", bundle: .module)
+                            .multilineTextAlignment(.center)
+                            .padding()
+                        
+                        Text("allow-in-settings", bundle: .module)
+                            .multilineTextAlignment(.center)
+                            .padding()
+                        
+                        Button {
+                            if let url = URL(string: UIApplication.openSettingsURLString) {
+                                UIApplication.shared.open(url)
+                            }
+                        } label: {
+                            Text("open-settings", bundle: .module)
+                                .foregroundStyle(.white)
+                                .multilineTextAlignment(.center)
+                                .padding()
+                                .background(.black)
+                                .cornerRadius(15)
+                        }
+                    }
+                    .frame(width: UIScreen.main.bounds.width * 0.75, height: 200, alignment: .center)
                 }
             }
             .onAppear {
-                isActive = true
                 checkCameraPermission()
-            }
-            .onDisappear {
-                isActive = false
-            }
-            .alert(Text("no-access", bundle: .module), isPresented: $showAlert) {
-                Button {
-                    if let url = URL(string: UIApplication.openSettingsURLString) {
-                        UIApplication.shared.open(url)
-                    }
-                } label: {
-                    Text("open-settings", bundle: .module)
-                }
-                Button {
-                    onClose()
-                } label: {
-                    Text("cancel", bundle: .module)
-                }
-            } message: {
-                Text("allow-in-settings", bundle: .module)
             }
             .toolbar {
                 toolBarItems()
@@ -177,20 +177,16 @@ public struct CameraScanView: View {
         switch AVCaptureDevice.authorizationStatus(for: .video) {
         case .authorized:
             accessGranted = true
-            showAlert = false
 
         case .notDetermined:
             AVCaptureDevice.requestAccess(for: .video) { granted in
                 DispatchQueue.main.async {
-                    guard isActive else { return }
                     accessGranted = granted
-                    showAlert = !granted
                 }
             }
 
         default:
             accessGranted = false
-            showAlert = true
         }
     }
     
