@@ -63,44 +63,43 @@ public struct CameraScanView: View {
         NavigationStack {
             ZStack {
                 if accessGranted {
-//                    CarPlatesScannerView { plates in
-//                        self.carPlates = plates
-//                        parseCarPlate(plates)
-//                        cameraAutoOff()
-//                    }
-//                    .edgesIgnoringSafeArea(.all)
-//                    
-//                    Rectangle()
-//                        .fill(cameraViewBgColor.opacity(cameraViewBgColorOpacity))
-//                        .mask(
-//                            CutoutMask(size: cutoutSize)
-//                                .fill(style: FillStyle(eoFill: true))
-//                        )
-//                        .background(
-//                            RoundedRectangle(cornerRadius: 16)
-//                                .stroke(cutoutStrokeColor, lineWidth: cutoutStrokeLineWidth)
-//                                .frame(
-//                                    width: cutoutWidth,
-//                                    height: cutoutHeight)
-//                        )
-//                        .overlay {
-//                            HStack(alignment: .center) {
-//                                if !carPlates.isEmpty {
-//                                    Text("\(carPlates)")
-//                                        .font(font)
-//                                        .foregroundStyle(scannedPlatesTextColor)
-//                                }
-//                            }
-//                            .animation(.easeInOut, value: carPlates)
-//                        }
-//                        .ignoresSafeArea()
-//                    
-//                    
-//                    Text("point-the-camera", bundle: .module)
-//                        .font(font)
-//                        .foregroundColor(Color.white)
-//                        .frame(maxHeight: 300, alignment: .top)
-                    Text("тут должна быть камера")
+                    CarPlatesScannerView { plates in
+                        self.carPlates = plates
+                        parseCarPlate(plates)
+                        cameraAutoOff()
+                    }
+                    .edgesIgnoringSafeArea(.all)
+                    
+                    Rectangle()
+                        .fill(cameraViewBgColor.opacity(cameraViewBgColorOpacity))
+                        .mask(
+                            CutoutMask(size: cutoutSize)
+                                .fill(style: FillStyle(eoFill: true))
+                        )
+                        .background(
+                            RoundedRectangle(cornerRadius: 16)
+                                .stroke(cutoutStrokeColor, lineWidth: cutoutStrokeLineWidth)
+                                .frame(
+                                    width: cutoutWidth,
+                                    height: cutoutHeight)
+                        )
+                        .overlay {
+                            HStack(alignment: .center) {
+                                if !carPlates.isEmpty {
+                                    Text("\(carPlates)")
+                                        .font(font)
+                                        .foregroundStyle(scannedPlatesTextColor)
+                                }
+                            }
+                            .animation(.easeInOut, value: carPlates)
+                        }
+                        .ignoresSafeArea()
+                    
+                    
+                    Text("point-the-camera", bundle: .module)
+                        .font(font)
+                        .foregroundColor(Color.white)
+                        .frame(maxHeight: 300, alignment: .top)
                 } else {
                     VStack {
                         Text("no-access", bundle: .module)
@@ -124,7 +123,10 @@ public struct CameraScanView: View {
                                 .cornerRadius(15)
                         }
                     }
+                    .background(.gray.opacity(0.8))
                     .frame(width: UIScreen.main.bounds.width * 0.75, height: 200, alignment: .center)
+                    .cornerRadius(15)
+                    .padding()
                 }
             }
             .onAppear {
