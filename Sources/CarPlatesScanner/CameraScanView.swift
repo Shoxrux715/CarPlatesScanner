@@ -11,24 +11,55 @@ import Vision
 
 @MainActor
 public struct CameraScanView: View {
-
+    
     /// First is series, second is number
     public let onPlatesDetected: @MainActor (String, String) -> Void
     public let onClose: @MainActor () -> Void
+    public var scannedPlatesTextColor: Color
+    public var toolBarItemsColor: Color
+    public var cameraViewBgColor: Color
+    public var cameraViewBgColorOpacity: Double
+    public var cutoutWidth: CGFloat
+    public var cutoutHeight: CGFloat
+    public var cutoutStrokeColor: Color
+    public var cutoutStrokeLineWidth: CGFloat
+    public var font: Font
+  
+    @State public var showAlert: Bool = false
+    @State public var accessGranted: Bool = false
 
-    @State private var showAlert: Bool = false
-    @State private var carPlates: String = ""
-
-    private let cutoutSize = CGSize(width: UIScreen.main.bounds.width * 3/4, height: 100)
-
+    @State public var carPlates: String = ""
+    
+    public var cutoutSize = CGSize(width: UIScreen.main.bounds.width * 3/4, height: 100)
+    
+    
     public init(
+        scannedPlatesTextColor: Color? = nil,
+        toolBarItemsColor: Color? = nil,
+        cameraViewBackgroundColor: Color? = nil,
+        cameraViewBackgroundColorOpacity: Double? = nil,
+        cutoutWidth: CGFloat? = nil,
+        cutoutHeight: CGFloat? = nil,
+        cutoutStrokeColor: Color? = nil,
+        cutoutStrokeLineWidth: CGFloat? = nil,
+        font: Font? = nil,
         onPlatesDetected: @escaping @MainActor (String, String) -> Void,
         onClose: @escaping @MainActor () -> Void
     ) {
+        self.scannedPlatesTextColor = scannedPlatesTextColor ?? .white
+        self.toolBarItemsColor = toolBarItemsColor ?? .white
+        self.cameraViewBgColor = cameraViewBackgroundColor ?? .black
+        self.cameraViewBgColorOpacity = cameraViewBackgroundColorOpacity ?? 0.3
+        self.cutoutWidth = cutoutWidth ?? cutoutSize.width
+        self.cutoutHeight = cutoutHeight ?? cutoutSize.height
+        self.cutoutSize = CGSize(width: cutoutWidth ?? cutoutSize.width, height: cutoutHeight ?? cutoutSize.height)
+        self.cutoutStrokeColor = cutoutStrokeColor ?? .white
+        self.cutoutStrokeLineWidth = cutoutStrokeLineWidth ?? 5
+        self.font = font ?? .system(size: 20)
         self.onPlatesDetected = onPlatesDetected
         self.onClose = onClose
     }
-
+    
     public var body: some View {
         NavigationStack {
             ZStack {
@@ -40,75 +71,81 @@ public struct CameraScanView: View {
                     }
                 }
                 .edgesIgnoringSafeArea(.all)
-
+                
                 Rectangle()
-                    .fill(Color.black.opacity(0.3))
+                    .fill(cameraViewBgColor.opacity(cameraViewBgColorOpacity))
                     .mask(
                         CutoutMask(size: cutoutSize)
                             .fill(style: FillStyle(eoFill: true))
                     )
                     .background(
                         RoundedRectangle(cornerRadius: 16)
-                            .stroke(Color.white, lineWidth: 5)
-                            .frame(width: cutoutSize.width, height: cutoutSize.height)
+                            .stroke(cutoutStrokeColor, lineWidth: cutoutStrokeLineWidth)
+                            .frame(
+                                width: cutoutWidth,
+                                height: cutoutHeight)
                     )
                     .overlay {
                         HStack(alignment: .center) {
                             if !carPlates.isEmpty {
                                 Text(carPlates)
-                                    .font(.system(size: 30).bold())
-                                    .foregroundStyle(Color.white)
+                                    .font(font)
+                                    .foregroundStyle(scannedPlatesTextColor)
                             }
                         }
                         .animation(.easeInOut, value: carPlates)
                     }
                     .ignoresSafeArea()
-
-                Text("camera")
-                    .foregroundColor(.white)
+                
+                
+                Text("point-the-camera", bundle: .module)
+                    .font(font)
+                    .foregroundColor(Color.white)
                     .frame(maxHeight: 300, alignment: .top)
             }
             .onAppear { checkCameraPermission() }
-            .alert(Text("alert"), isPresented: $showAlert) {
+            .alert(Text("no-access", bundle: .module), isPresented: $showAlert) {
                 Button {
                     if let url = URL(string: UIApplication.openSettingsURLString) {
                         UIApplication.shared.open(url)
                     }
                 } label: {
-                    Text("open-settings")
+                    Text("open-settings", bundle: .module)
                 }
                 Button { onClose() } label: {
-                    Text("cancel")
+                    Text("cancel", bundle: .module)
                 }
             } message: {
-                Text("alert")
+                Text("allow-in-settings", bundle: .module)
             }
             .toolbar { toolBarItems() }
         }
     }
-
-
+        
+    
     // MARK: View components
     @ToolbarContentBuilder
     func toolBarItems() -> some ToolbarContent {
-
+        
         ToolbarItem(placement: .principal) {
-            Text("scan")
-                .foregroundColor(Color.white)
+            Text("scan-number", bundle: .module)
+                .font(font)
+                .foregroundColor(toolBarItemsColor)
         }
-
+        
         ToolbarItem(placement: .topBarLeading) {
             Button{
                 onClose()
             } label: {
                 Image(systemName: "xmark")
-                    .foregroundColor(Color.white)
+                    .foregroundColor(toolBarItemsColor)
                     .frame(width: 40, height: 40)
+                    .padding()
             }
         }
     }
-
-
+    
+    
     // MARK: Functions
     private func parseCarPlate(_ plate: String) {
         let cleaned = plate.replacingOccurrences(of: " ", with: "")
@@ -116,13 +153,13 @@ public struct CameraScanView: View {
             onPlatesDetected("", cleaned)
             return
         }
-
+        
         let carSeries = String(cleaned.prefix(2))
         let rest = String(cleaned.dropFirst(2))
         onPlatesDetected(carSeries, rest)
         return
     }
-
+    
     private func checkCameraPermission() {
         DispatchQueue.init(label: "carPlatesScanner.sessionQueue").async {
             switch AVCaptureDevice.authorizationStatus(for: .video) {
@@ -145,10 +182,10 @@ public struct CameraScanView: View {
             }
         }
     }
-
+    
     private func cameraAutoOff() {
         guard !carPlates.isEmpty else { return }
-
+        
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             carPlates = ""
             onClose()
@@ -157,11 +194,10 @@ public struct CameraScanView: View {
 }
 
 #Preview {
-    CameraScanView(
-        onPlatesDetected: { ser, num in
-
-        },
-        onClose: { }
-    )
+    CameraScanView(onPlatesDetected: { ser, num in
+        
+    }, onClose: {
+        
+    })
 }
 
