@@ -124,19 +124,25 @@ public struct CameraScanView: View {
     }
 
     private func checkCameraPermission() {
-        switch AVCaptureDevice.authorizationStatus(for: .video) {
-        case .authorized:
-            showAlert = false
-
-        case .notDetermined:
-            AVCaptureDevice.requestAccess(for: .video) { granted in
+        DispatchQueue.init(label: "carPlatesScanner.sessionQueue").async {
+            switch AVCaptureDevice.authorizationStatus(for: .video) {
+            case .authorized:
                 DispatchQueue.main.async {
-                    showAlert = !granted
+                    showAlert = false
+                }
+                
+            case .notDetermined:
+                AVCaptureDevice.requestAccess(for: .video) { granted in
+                    DispatchQueue.main.async {
+                        showAlert = !granted
+                    }
+                }
+                
+            default:
+                DispatchQueue.main.async {
+                    showAlert = true
                 }
             }
-
-        default:
-            showAlert = true
         }
     }
 
