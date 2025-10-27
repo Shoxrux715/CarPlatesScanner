@@ -162,17 +162,20 @@ public struct CameraScanView: View {
     private func checkCameraPermission() {
         switch AVCaptureDevice.authorizationStatus(for: .video) {
         case .authorized:
-            showAlert = false
+            print("authorized")
+//            showAlert = false
 
         case .notDetermined:
             AVCaptureDevice.requestAccess(for: .video) { granted in
                 DispatchQueue.main.async {
-                    showAlert = !granted
+                    print("notDetermined")
+//                    showAlert = !granted
                 }
             }
 
         default:
-            showAlert = true
+//            showAlert = true
+            print("default")
         }
     }
     
