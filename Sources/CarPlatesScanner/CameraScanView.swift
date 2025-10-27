@@ -102,7 +102,7 @@ public struct CameraScanView: View {
                     .foregroundColor(Color.white)
                     .frame(maxHeight: 300, alignment: .top)
             }
-//            .onAppear { checkCameraPermission() }
+            .onAppear { checkCameraPermission() }
             .alert(Text("no-access", bundle: .module), isPresented: $showAlert) {
                 Button {
                     if let url = URL(string: UIApplication.openSettingsURLString) {
@@ -159,22 +159,22 @@ public struct CameraScanView: View {
         return
     }
     
-//    private func checkCameraPermission() {
-//        switch AVCaptureDevice.authorizationStatus(for: .video) {
-//        case .authorized:
-//            showAlert = false
-//
-//        case .notDetermined:
-//            AVCaptureDevice.requestAccess(for: .video) { granted in
-//                DispatchQueue.main.async {
-//                    showAlert = !granted
-//                }
-//            }
-//
-//        default:
-//            showAlert = true
-//        }
-//    }
+    private func checkCameraPermission() {
+        switch AVCaptureDevice.authorizationStatus(for: .video) {
+        case .authorized:
+            showAlert = false
+
+        case .notDetermined:
+            AVCaptureDevice.requestAccess(for: .video) { granted in
+                DispatchQueue.main.async {
+                    showAlert = !granted
+                }
+            }
+
+        default:
+            showAlert = true
+        }
+    }
     
     private func cameraAutoOff() {
         guard !carPlates.isEmpty else { return }
