@@ -8,12 +8,12 @@
 import SwiftUI
 import AVFoundation
 import Vision
-
+@MainActor
 public struct CameraScanView: View {
     
     /// First is series, second is number
-    public let onPlatesDetected: (String, String) -> (Void)
-    public let onClose: () -> Void
+    public let onPlatesDetected: @MainActor (String, String) -> Void
+    public let onClose: @MainActor () -> Void
     public var scannedPlatesTextColor: Color
     public var toolBarItemsColor: Color
     public var cameraViewBgColor: Color
@@ -42,8 +42,8 @@ public struct CameraScanView: View {
         cutoutStrokeColor: Color? = nil,
         cutoutStrokeLineWidth: CGFloat? = nil,
         font: Font? = nil,
-        onPlatesDetected: @escaping (String, String) -> Void,
-        onClose: @escaping () -> Void
+        onPlatesDetected: @escaping @MainActor (String, String) -> Void,
+        onClose: @escaping @MainActor () -> Void
     ) {
         self.scannedPlatesTextColor = scannedPlatesTextColor ?? .white
         self.toolBarItemsColor = toolBarItemsColor ?? .white
@@ -62,80 +62,67 @@ public struct CameraScanView: View {
     public var body: some View {
         NavigationStack {
             ZStack {
-                if accessGranted {
-                    CarPlatesScannerView { plates in
+                CarPlatesScannerView { plates in
+                    Task { @MainActor in
                         self.carPlates = plates
                         parseCarPlate(plates)
                         cameraAutoOff()
                     }
-                    .edgesIgnoringSafeArea(.all)
-                    
-                    Rectangle()
-                        .fill(cameraViewBgColor.opacity(cameraViewBgColorOpacity))
-                        .mask(
-                            CutoutMask(size: cutoutSize)
-                                .fill(style: FillStyle(eoFill: true))
-                        )
-                        .background(
-                            RoundedRectangle(cornerRadius: 16)
-                                .stroke(cutoutStrokeColor, lineWidth: cutoutStrokeLineWidth)
-                                .frame(
-                                    width: cutoutWidth,
-                                    height: cutoutHeight)
-                        )
-                        .overlay {
-                            HStack(alignment: .center) {
-                                if !carPlates.isEmpty {
-                                    Text("\(carPlates)")
-                                        .font(font)
-                                        .foregroundStyle(scannedPlatesTextColor)
-                                }
-                            }
-                            .animation(.easeInOut, value: carPlates)
-                        }
-                        .ignoresSafeArea()
-                    
-                    
-                    Text("point-the-camera", bundle: .module)
-                        .font(font)
-                        .foregroundColor(Color.white)
-                        .frame(maxHeight: 300, alignment: .top)
-                } else {
-                    VStack {
-                        Text("no-access", bundle: .module)
-                            .multilineTextAlignment(.center)
-                            .padding()
-                        
-                        Text("allow-in-settings", bundle: .module)
-                            .multilineTextAlignment(.center)
-                            .padding()
-                        
-                        Button {
-                            if let url = URL(string: UIApplication.openSettingsURLString) {
-                                UIApplication.shared.open(url)
-                            }
-                        } label: {
-                            Text("open-settings", bundle: .module)
-                                .foregroundStyle(.white)
-                                .multilineTextAlignment(.center)
-                                .padding()
-                                .background(.black)
-                                .cornerRadius(15)
-                        }
-                    }
                 }
+                .edgesIgnoringSafeArea(.all)
+                
+                Rectangle()
+                    .fill(cameraViewBgColor.opacity(cameraViewBgColorOpacity))
+                    .mask(
+                        CutoutMask(size: cutoutSize)
+                            .fill(style: FillStyle(eoFill: true))
+                    )
+                    .background(
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(cutoutStrokeColor, lineWidth: cutoutStrokeLineWidth)
+                            .frame(
+                                width: cutoutWidth,
+                                height: cutoutHeight)
+                    )
+                    .overlay {
+                        HStack(alignment: .center) {
+                            if !carPlates.isEmpty {
+                                Text(carPlates)
+                                    .font(font)
+                                    .foregroundStyle(scannedPlatesTextColor)
+                            }
+                        }
+                        .animation(.easeInOut, value: carPlates)
+                    }
+                    .ignoresSafeArea()
+                
+                
+                Text("point-the-camera", bundle: .module)
+                    .font(font)
+                    .foregroundColor(Color.white)
+                    .frame(maxHeight: 300, alignment: .top)
             }
-            .onAppear {
-                checkCameraPermission()
+            .onAppear { checkCameraPermission() }
+            .alert(Text("no-access", bundle: .module), isPresented: $showAlert) {
+                Button {
+                    if let url = URL(string: UIApplication.openSettingsURLString) {
+                        UIApplication.shared.open(url)
+                    }
+                } label: {
+                    Text("open-settings", bundle: .module)
+                }
+                Button { onClose() } label: {
+                    Text("cancel", bundle: .module)
+                }
+            } message: {
+                Text("allow-in-settings", bundle: .module)
             }
-            .toolbar {
-                toolBarItems()
-            }
+            .toolbar { toolBarItems() }
         }
     }
         
     
-// MARK: View components
+    // MARK: View components
     @ToolbarContentBuilder
     func toolBarItems() -> some ToolbarContent {
         
@@ -158,7 +145,7 @@ public struct CameraScanView: View {
     }
     
     
-// MARK: Functions
+    // MARK: Functions
     private func parseCarPlate(_ plate: String) {
         let cleaned = plate.replacingOccurrences(of: " ", with: "")
         guard cleaned.count >= 8 else {
@@ -175,17 +162,17 @@ public struct CameraScanView: View {
     private func checkCameraPermission() {
         switch AVCaptureDevice.authorizationStatus(for: .video) {
         case .authorized:
-            accessGranted = true
+            showAlert = false
 
         case .notDetermined:
             AVCaptureDevice.requestAccess(for: .video) { granted in
                 DispatchQueue.main.async {
-                    accessGranted = granted
+                    showAlert = !granted
                 }
             }
 
         default:
-            accessGranted = false
+            showAlert = true
         }
     }
     
@@ -205,19 +192,4 @@ public struct CameraScanView: View {
     }, onClose: {
         
     })
-}
-
-public extension String {
-    func isValidNumberPlates() -> Bool {
-//        #"^[0-9][0-9O](?:[A-Z][0-9]{3}[A-Z]{2}|[0-9]{3}[A-Z]{3}| ?[A-Z] ?[0-9]{5,6})$"#
-        let patt = #"^(?:[0-9][0-9O](?:[A-Z][0-9]{3}[A-Z]{2}|[0-9]{3}[A-Z]{3}| ?[A-Z] ?[0-9]{5,6})|[A-Z]{2}[0-9]{4}|[A-Z]{3}[0-9]{3})$"#
-        do { 
-            let regex = try NSRegularExpression(pattern: patt)
-            let range = NSRange(location: 0, length: self.utf16.count)
-            return regex.firstMatch(in: self, options: [], range: range) != nil
-        } catch { 
-            print("Regex error: ", error)
-            return false
-        }
-    }
 }
