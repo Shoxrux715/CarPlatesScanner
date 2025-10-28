@@ -32,7 +32,7 @@ public struct CameraScanView: View {
     
     public var cutoutSize = CGSize(width: UIScreen.main.bounds.width * 3/4, height: 100)
     
-    
+    /// Инициализация с возможностью настройки внешнего вида
     public init(
         scannedPlatesTextColor: Color? = nil,
         toolBarItemsColor: Color? = nil,
@@ -63,6 +63,7 @@ public struct CameraScanView: View {
     public var body: some View {
         NavigationStack {
             ZStack {
+                /// Основной компонент, который обрабатывает видеопоток и распознает номера
                 CarPlatesScannerView { plates in
                     Task { @MainActor in
                         self.carPlates = plates
@@ -72,6 +73,7 @@ public struct CameraScanView: View {
                 }
                 .edgesIgnoringSafeArea(.all)
                 
+                /// Затемненная маска с вырезом (cutout) посередине
                 Rectangle()
                     .fill(cameraViewBgColor.opacity(cameraViewBgColorOpacity))
                     .mask(
@@ -86,6 +88,7 @@ public struct CameraScanView: View {
                                 height: cutoutHeight)
                     )
                     .overlay {
+                        /// Отображение распознанного номера поверх камеры
                         HStack(alignment: .center) {
                             if !carPlates.isEmpty {
                                 Text(carPlates)
@@ -97,13 +100,14 @@ public struct CameraScanView: View {
                     }
                     .ignoresSafeArea()
                 
-                
+                /// Подсказка пользователю
                 Text("point-the-camera", bundle: .module)
                     .font(font)
                     .foregroundColor(Color.white)
                     .frame(maxHeight: 300, alignment: .top)
             }
             .onAppear { checkCameraPermission() }
+            /// Алерт, если не предоставлен доступ к камере
             .alert(Text("no-access", bundle: .module), isPresented: $showAlert) {
                 Button {
                     if let url = URL(string: UIApplication.openSettingsURLString) {
@@ -118,6 +122,7 @@ public struct CameraScanView: View {
             } message: {
                 Text("allow-in-settings", bundle: .module)
             }
+            /// Верхняя панель с кнопками и заголовком
             .toolbar { toolBarItems() }
         }
     }
@@ -147,6 +152,7 @@ public struct CameraScanView: View {
     
     
     // MARK: Functions
+    /// Разделяет строку номера на серию и основную часть
     private func parseCarPlate(_ plate: String) {
         let cleaned = plate.replacingOccurrences(of: " ", with: "")
         guard cleaned.count >= 8 else {
@@ -159,7 +165,7 @@ public struct CameraScanView: View {
         onPlatesDetected(carSeries, rest)
         return
     }
-    
+    /// Проверяет доступ к камере, при необходимости запрашивает разрешение
     private func checkCameraPermission() {
         DispatchQueue.init(label: "carPlatesScanner.sessionQueue").async {
             switch AVCaptureDevice.authorizationStatus(for: .video) {
@@ -182,7 +188,7 @@ public struct CameraScanView: View {
             }
         }
     }
-    
+    /// Автоматически закрывает камеру через 1 секунду после успешного распознавания
     private func cameraAutoOff() {
         guard !carPlates.isEmpty else { return }
         

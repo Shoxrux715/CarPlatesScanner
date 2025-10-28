@@ -8,6 +8,7 @@
 import SwiftUI
 import CarPlatesScanner
 
+/// Demo-версия для пробы SPM
 struct ContentView: View {
     
     @State private var carNumber: String = ""

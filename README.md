@@ -2,6 +2,12 @@
 
 A Swift Package for real-time car license plate recognition using `AVFoundation`, `Vision`, and `SwiftUI`.
 
+1. Add NSCameraUsageDescription into Info.plist for Camera Useage Description.
+2. import CarPlatesScanner on top of your View.
+3. To create scanner use CameraScanView { series, number in , onClose: () }
+4. Plates are returned separately as series and as body (number)
+5. Try Demo version to get along easier
+
 ## 🚀 Features
 
 - 📷 Real-time number plate scanning with live camera preview.

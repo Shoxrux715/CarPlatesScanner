@@ -30,7 +30,11 @@ public class Coordinator: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate
         
         for observation in observations {
             guard let candidate = observation.topCandidates(1).first else { continue }
+            
+            // Берём лучший вариант распознанного текста
             let text = correctPlate(candidate.string)
+            
+            // Проверяем, соответствует ли строка формату номера
             if text.isValidNumberPlates() {
                 carPlates = text
                 break
@@ -45,7 +49,18 @@ public class Coordinator: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate
         }
     }
     
-    // To recognize plates with letter "O"
+    // MARK: - OCR Correction
+        
+        /// Исправляет типичные OCR-ошибки в распознавании автомобильных номеров,
+        /// когда цифра "0" ошибочно определяется вместо буквы "O".
+        ///
+        /// Алгоритм учитывает разные шаблоны номеров:
+        /// - 1 буква + 3 цифры + 2 буквы (`A123BC`)
+        /// - 3 цифры + 3 буквы (`123ABC`)
+        /// - 1 буква + 6 цифр (`A123456`)
+        ///
+        /// - Parameter rawText: исходный распознанный текст
+        /// - Returns: исправленная строка с корректными символами
     public func correctPlate(_ rawText: String) -> String {
         let cleaned = rawText.uppercased().replacingOccurrences(of: " ", with: "")
         guard cleaned.count >= 5 else { return cleaned }

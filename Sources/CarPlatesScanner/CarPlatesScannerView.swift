@@ -9,7 +9,20 @@ import SwiftUI
 @preconcurrency import AVFoundation
 import Vision
 
+/// Представление камеры, которое отображает видеопоток и
+/// передаёт распознанный номер автомобиля через callback.
+///  
+/// Используется внутри `CameraScanView`.
+///  
+/// > Пример:
+/// ```swift
+/// CarPlatesScannerView { detectedPlate in
+///     print("Detected plate: \(detectedPlate)")
+/// }
+/// ```
 public struct CarPlatesScannerView: UIViewControllerRepresentable {
+    
+    /// Замыкание, вызываемое при обнаружении номера
     public var onCarPlatesDetected: (String) -> Void
     
     public func makeCoordinator() -> Coordinator {
